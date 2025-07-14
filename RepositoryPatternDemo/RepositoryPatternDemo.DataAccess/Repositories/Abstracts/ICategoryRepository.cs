@@ -1,5 +1,7 @@
-﻿namespace RepositoryPatternDemo.DataAccess.Repositories.Abstracts;
+﻿using RepositoryPatternDemo.Domain.Entities;
 
-public interface ICategoryRepository
+namespace RepositoryPatternDemo.DataAccess.Repositories.Abstracts;
+
+public interface ICategoryRepository : IBaseRepository<Category>
 {
 }

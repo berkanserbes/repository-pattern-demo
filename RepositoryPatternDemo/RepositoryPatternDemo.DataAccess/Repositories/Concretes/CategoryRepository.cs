@@ -1,12 +1,12 @@
-﻿using RepositoryPatternDemo.DataAccess.Repositories.Abstracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RepositoryPatternDemo.DataAccess.DbContexts;
+using RepositoryPatternDemo.DataAccess.Repositories.Abstracts;
+using RepositoryPatternDemo.Domain.Entities;
 
 namespace RepositoryPatternDemo.DataAccess.Repositories.Concretes;
 
-public class CategoryRepository : ICategoryRepository
+public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
 {
+	public CategoryRepository(AppDbContext context) : base(context)
+	{
+	}
 }
