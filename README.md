@@ -36,7 +36,6 @@ This repository provides a sample implementation of the Repository Pattern in a 
 - Service layer for business logic
 - RESTful API for managing products and categories
 - PostgreSQL database integration via Entity Framework Core
-- OpenAPI (Swagger) support for API documentation
 
 ## Architecture
 
