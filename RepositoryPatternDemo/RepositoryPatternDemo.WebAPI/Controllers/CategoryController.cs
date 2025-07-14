@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RepositoryPatternDemo.Business.Requests.CategoryRequests;
 using RepositoryPatternDemo.Business.Services.Abstracts;
 using RepositoryPatternDemo.Domain.Entities;
 
@@ -23,7 +24,7 @@ public class CategoryController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
-	public async Task<IActionResult> GetCategoryById(object id)
+	public async Task<IActionResult> GetCategoryById([FromRoute] int id)
 	{
 		var category = await _serviceManager.CategoryService.GetCategoryByIdAsync(id);
 		if (category == null)
@@ -31,35 +32,44 @@ public class CategoryController : ControllerBase
 		return Ok(category);
 	}
 
-	[HttpPost]
-	public async Task<IActionResult> CreateCategory([FromBody] Category category)
+	[HttpGet("with-products/{id}")]
+	public async Task<IActionResult> GetCategoryByIdWithProducts([FromRoute] int id)
 	{
+		var category = await _serviceManager.CategoryService.GetCategoryByIdWithProductsAsync(id);
 		if (category == null)
+			return NotFound();
+		return Ok(category);
+	}
+
+	[HttpPost]
+	public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
+	{
+		if (request == null)
 			return BadRequest("Category cannot be null.");
-		await _serviceManager.CategoryService.CreateCategoryAsync(category);
+		await _serviceManager.CategoryService.CreateCategoryAsync(request);
 		return Ok("Category created successfully.");
 	}
 
 	[HttpPut]
-	public async Task<IActionResult> UpdateCategory([FromBody] Category category)
+	public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryRequest request)
 	{
-		if (category == null)
+		if (request == null)
 			return BadRequest("Category cannot be null.");
-		await _serviceManager.CategoryService.UpdateCategoryAsync(category);
+		await _serviceManager.CategoryService.UpdateCategoryAsync(request);
 		return Ok("Category updated successfully.");
 	}
 
 	[HttpDelete]
-	public async Task<IActionResult> DeleteCategory(object id)
+	public async Task<IActionResult> DeleteCategory(DeleteCategoryRequest request)
 	{
 		try
 		{
-			await _serviceManager.CategoryService.DeleteCategoryAsync(id);
+			await _serviceManager.CategoryService.DeleteCategoryAsync(request);
 			return Ok("Category deleted successfully.");
 		}
 		catch (KeyNotFoundException)
 		{
-			return NotFound($"Category with id {id} not found.");
+			return NotFound($"Category with id {request.Id} not found.");
 		}
 	}
 

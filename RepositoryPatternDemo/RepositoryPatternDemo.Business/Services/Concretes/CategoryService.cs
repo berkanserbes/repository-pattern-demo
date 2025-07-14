@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using RepositoryPatternDemo.Business.Requests.CategoryRequests;
+using RepositoryPatternDemo.Business.Responses;
 using RepositoryPatternDemo.Business.Services.Abstracts;
 using RepositoryPatternDemo.DataAccess.Repositories.Abstracts;
 using RepositoryPatternDemo.Domain.Entities;
@@ -14,21 +15,26 @@ public class CategoryService : ICategoryService
 		_repositoryManager = repositoryManager;
 	}
 
-	public async Task CreateCategoryAsync(Category category)
+	public async Task CreateCategoryAsync(CreateCategoryRequest request)
 	{
-		if(category is null)
-			throw new ArgumentNullException(nameof(category), "Category cannot be null.");
+		if (request is null)
+			throw new ArgumentNullException(nameof(request), "Category cannot be null.");
+
+		Category category = new Category
+		{
+			Name = request.Name,
+		};
 
 		_repositoryManager.CategoryRepository.Create(category);
 		await _repositoryManager.SaveAsync();
 	}
 
-	public async Task DeleteCategoryAsync(object id)
+	public async Task DeleteCategoryAsync(DeleteCategoryRequest request)
 	{
-		Category? category = await _repositoryManager.CategoryRepository.GetByIdAsync(id, true);
+		Category? category = await _repositoryManager.CategoryRepository.GetByIdAsync(request.Id, true);
 
 		if (category is null)
-			throw new KeyNotFoundException($"Category with id {id} not found.");
+			throw new KeyNotFoundException($"Category with id {request.Id} not found.");
 
 		_repositoryManager.CategoryRepository.Delete(category);
 		await _repositoryManager.SaveAsync();
@@ -39,21 +45,43 @@ public class CategoryService : ICategoryService
 		return await _repositoryManager.CategoryRepository.GetAllAsync(trackChanges);
 	}
 
-	public async Task<Category?> GetCategoryByIdAsync(object id, bool trackChanges = false)
+	public async Task<Category?> GetCategoryByIdAsync(int id, bool trackChanges = false)
 	{
 		return await _repositoryManager.CategoryRepository.GetByIdAsync(id, trackChanges);
 	}
 
-	public async Task UpdateCategoryAsync(Category category)
+	public async Task<CategoryResponse?> GetCategoryByIdWithProductsAsync(int id)
 	{
+		var category = await _repositoryManager.CategoryRepository.GetCategoryByIdWithProducts(id);
+
 		if (category is null)
-			throw new ArgumentNullException(nameof(category), "Category cannot be null.");
+			return null;
 
-		var existing = await _repositoryManager.CategoryRepository.GetByIdAsync(category.Id, true);
+		var response = new CategoryResponse(
+			Id: category.Id,
+			Name: category.Name,
+			Products: category.Products.Select(p => new ProductResponse(
+				Id: p.Id,
+				Name: p.Name,
+				Price: p.Price
+			)).ToList()
+		);
+
+		return response;
+	}
+
+	public async Task UpdateCategoryAsync(UpdateCategoryRequest request)
+	{
+		if (request is null)
+			throw new ArgumentNullException(nameof(request), "Category cannot be null.");
+
+		var existing = await _repositoryManager.CategoryRepository.GetByIdAsync(request.Id, true);
 		if (existing is null)
-			throw new KeyNotFoundException($"Category with id {category.Id} not found.");
+			throw new KeyNotFoundException($"Category with id {request.Id} not found.");
 
-		_repositoryManager.CategoryRepository.Update(category);
+		existing.Name = request.Name;
+
+		_repositoryManager.CategoryRepository.Update(existing);
 		await _repositoryManager.SaveAsync();
 	}
 }

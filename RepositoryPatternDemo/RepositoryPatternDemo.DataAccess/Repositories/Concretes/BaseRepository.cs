@@ -34,7 +34,7 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity> where TEntity : 
 		return await _dbSet.AsNoTracking().ToListAsync();
 	}
 
-	public async Task<TEntity?> GetByIdAsync(object id, bool trackChanges = false)
+	public async Task<TEntity?> GetByIdAsync(int id, bool trackChanges = false)
 	{
 		var entity = await _dbSet.FindAsync(id);
 		if (!trackChanges && entity != null)

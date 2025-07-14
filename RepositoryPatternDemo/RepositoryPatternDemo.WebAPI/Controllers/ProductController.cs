@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RepositoryPatternDemo.Business.Requests.ProductRequests;
 using RepositoryPatternDemo.Business.Services.Abstracts;
-using RepositoryPatternDemo.Domain.Entities;
 
 namespace RepositoryPatternDemo.WebAPI.Controllers;
 
@@ -23,7 +23,7 @@ public class ProductController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
-	public async Task<IActionResult> GetProductById(object id)
+	public async Task<IActionResult> GetProductById(int id)
 	{
 		var product = await _serviceManager.ProductService.GetProductByIdAsync(id);
 		if (product == null)
@@ -32,34 +32,34 @@ public class ProductController : ControllerBase
 	}
 
 	[HttpPost]
-	public async Task<IActionResult> CreateProduct([FromBody] Product product)
+	public async Task<IActionResult> CreateProduct([FromBody] CreateProductRequest request)
 	{
-		if (product == null)
+		if (request == null)
 			return BadRequest("Product cannot be null.");
-		await _serviceManager.ProductService.CreateProductAsync(product);
+		await _serviceManager.ProductService.CreateProductAsync(request);
 		return Ok("Product created successfully.");
 	}
 
 	[HttpPut]
-	public async Task<IActionResult> UpdateProduct([FromBody] Product product)
+	public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductRequest request)
 	{
-		if (product == null)
+		if (request == null)
 			return BadRequest("Product cannot be null.");
-		await _serviceManager.ProductService.UpdateProductAsync(product);
+		await _serviceManager.ProductService.UpdateProductAsync(request);
 		return Ok("Product updated successfully.");
 	}
 
 	[HttpDelete]
-	public async Task<IActionResult> DeleteProduct(object id)
+	public async Task<IActionResult> DeleteProduct(DeleteProductRequest request)
 	{
 		try
 		{
-			await _serviceManager.ProductService.DeleteProductAsync(id);
-			return Ok("Category deleted successfully.");
+			await _serviceManager.ProductService.DeleteProductAsync(request);
+			return Ok("Product deleted successfully.");
 		}
 		catch (KeyNotFoundException)
 		{
-			return NotFound($"Category with id {id} not found.");
+			return NotFound($"Product with id {request.Id} not found.");
 		}
 		catch (Exception ex)
 		{
